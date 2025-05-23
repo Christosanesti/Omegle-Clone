@@ -1,42 +1,74 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { ThumbsUp } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useWebRTC } from "@/hooks/useWebRTC";
+import { io } from "socket.io-client";
 
 const Home = () => {
   const [isChatting, setIsChatting] = useState(false);
   const [isVideoEnabled, setIsVideoEnabled] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const router = useRouter();
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [messageInput, setMessageInput] = useState("");
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const socketRef = useRef<any>(null);
+
+  const {
+    localStream,
+    remoteStream,
+    isConnected,
+    startCall,
+    endCall,
+    sendMessage,
+    messages,
+  } = useWebRTC(sessionId);
 
   useEffect(() => {
-    // Request camera access when video is enabled
-    if (isVideoEnabled && videoRef.current) {
-      navigator.mediaDevices
-        .getUserMedia({ video: true, audio: true })
-        .then((stream) => {
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        })
-        .catch((err) => {
-          console.error("Error accessing media devices:", err);
-        });
+    if (localStream && localVideoRef.current) {
+      localVideoRef.current.srcObject = localStream;
     }
-  }, [isVideoEnabled]);
+  }, [localStream]);
 
-  const startChat = () => {
+  useEffect(() => {
+    if (remoteStream && remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = remoteStream;
+    }
+  }, [remoteStream]);
+
+  const startChat = async () => {
     setIsChatting(true);
+    socketRef.current = io(
+      process.env.NEXT_PUBLIC_WS_URL || "http://localhost:3001"
+    );
+
+    socketRef.current.on("chat_started", ({ sessionId: newSessionId }) => {
+      setSessionId(newSessionId);
+      if (isVideoEnabled) {
+        startCall();
+      }
+    });
+
+    socketRef.current.emit("join", { userId: "temp-user-id" }); // Replace with actual user ID
   };
 
   const stopChat = () => {
+    endCall();
     setIsChatting(false);
-    if (videoRef.current?.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach((track) => track.stop());
+    setSessionId(null);
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+  };
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (messageInput.trim()) {
+      sendMessage(messageInput);
+      setMessageInput("");
     }
   };
 
@@ -144,19 +176,29 @@ const Home = () => {
             </div>
             // Chat interface
           : <div className="space-y-4">
-              <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted={isMuted}
-                  className="w-full h-full object-cover"
-                />
-                {!isVideoEnabled && (
-                  <div className="absolute inset-0 flex items-center justify-center text-white text-xl">
-                    Waiting for someone to join...
-                  </div>
-                )}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+                  <video
+                    ref={remoteVideoRef}
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                  {!isConnected && (
+                    <div className="absolute inset-0 flex items-center justify-center text-white text-xl">
+                      Waiting for someone to join...
+                    </div>
+                  )}
+                </div>
+                <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+                  <video
+                    ref={localVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               </div>
 
               {/* Chat controls */}
@@ -189,20 +231,34 @@ const Home = () => {
 
               {/* Chat messages area */}
               <div className="h-64 border rounded-lg p-4 overflow-y-auto">
-                <div className="text-center text-gray-500">
-                  No messages yet. Say hi!
-                </div>
+                {messages.length === 0 ?
+                  <div className="text-center text-gray-500">
+                    No messages yet. Say hi!
+                  </div>
+                : messages.map((msg, index) => (
+                    <div key={index} className="mb-2">
+                      <span className="text-gray-500 text-sm">
+                        {new Date(msg.timestamp).toLocaleTimeString()}
+                      </span>
+                      <p>{msg.content}</p>
+                    </div>
+                  ))
+                }
               </div>
 
               {/* Message input */}
-              <div className="flex gap-2">
+              <form onSubmit={handleSendMessage} className="flex gap-2">
                 <input
                   type="text"
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
                   placeholder="Type a message..."
                   className="flex-1 p-2 border rounded"
                 />
-                <Button className="bg-[#0088cc] text-white">Send</Button>
-              </div>
+                <Button type="submit" className="bg-[#0088cc] text-white">
+                  Send
+                </Button>
+              </form>
             </div>
 
         }
