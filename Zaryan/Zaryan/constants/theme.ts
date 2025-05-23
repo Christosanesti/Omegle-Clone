@@ -1,0 +1,72 @@
+import { scale, verticalScale } from "@/utils/styling";
+
+export const colors = {
+  primary: "#000000",
+  primaryLight: "#333333",
+  primaryDark: "#000000",
+  text: "#FFF",
+  textLight: "#e5e5e5",
+  textLighter: "#f5f5f5",
+  white: "#ffffff",
+  black: "#000000",
+  rose: "#ff0000",
+  green: "#00ff00",
+  natural50: "#f5f5f5",
+  natural100: "#e5e5e5",
+  natural200: "#d4d4d4",
+  natural300: "#c4c4c4",
+  natural400: "#b3b3b3",
+  natural500: "#a2a2a2",
+  natural600: "#919191",
+  natural700: "#808080",
+  natural800: "#6f6f6f",
+  natural900: "#5e5e5e",
+};
+
+export const spacingX = {
+  _3: scale(3),
+  _5: scale(5),
+  _7: scale(7),
+  _10: scale(10),
+  _12: scale(12),
+  _15: scale(15),
+  _17: scale(17),
+  _20: scale(20),
+  _25: scale(25),
+  _30: scale(30),
+  _35: scale(35),
+  _40: scale(40),
+};
+
+export const spacingY = {
+  _5: verticalScale(5),
+  _7: verticalScale(7),
+  _10: verticalScale(10),
+  _12: verticalScale(12),
+  _15: verticalScale(15),
+  _17: verticalScale(17),
+  _20: verticalScale(20),
+  _25: verticalScale(25),
+  _30: verticalScale(30),
+  _35: verticalScale(35),
+  _40: verticalScale(40),
+  _45: verticalScale(45),
+  _50: verticalScale(50),
+  _55: verticalScale(55),
+  _60: verticalScale(60),
+  _65: verticalScale(65),
+  _70: verticalScale(70),
+  _75: verticalScale(75),
+};
+
+export const radius = {
+  _3: verticalScale(3),
+  _6: verticalScale(6),
+  _10: verticalScale(10),
+  _12: verticalScale(12),
+  _15: verticalScale(15),
+  _17: verticalScale(17),
+  _20: verticalScale(20),
+  _25: verticalScale(25),
+  _30: verticalScale(30),
+};
