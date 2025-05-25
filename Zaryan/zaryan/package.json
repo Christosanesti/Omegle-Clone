@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "prisma:generate": "prisma generate --schema=./packages/db/schema.prisma",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -11,6 +12,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.20.0",
     "@hookform/resolvers": "^5.0.1",
+    "@prisma/client": "^6.8.2",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -37,6 +39,8 @@
     "@radix-ui/react-toggle": "^1.1.9",
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@tanstack/react-query": "^5.77.0",
+    "@tanstack/react-query-devtools": "^5.77.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -46,6 +50,7 @@
     "lucide-react": "^0.511.0",
     "next": "15.1.8",
     "next-themes": "^0.4.6",
+    "prisma": "^6.8.2",
     "react": "^19.0.0",
     "react-day-picker": "8.10.1",
     "react-dom": "^19.0.0",
