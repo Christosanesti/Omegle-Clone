@@ -53,7 +53,7 @@ export function CurrencyComboBox() {
         id: "update-currency",
       });
       setselectedOption(
-        Currencies.find((currency) => currency.value === data.currency || null)
+        currencies.find((currency) => currency.value === data.currency) || null
       );
     },
     onError: () => {

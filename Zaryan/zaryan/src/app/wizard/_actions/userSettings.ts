@@ -13,7 +13,7 @@ export async function updateUserCurrency(currency: string) {
     throw parsedBody.error;
   }
 
-  const user = await currentUser;
+  const user = await currentUser();
   if (!user) {
     redirect("/sign-in");
   }
